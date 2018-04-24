@@ -13,6 +13,11 @@ import java.util.Arrays;
  */
 public class SimpleHeap {
 
+    /**
+     * 默认长度
+     */
+    private static final int DEFAULT_INITIAL_CAPACITY = 11;
+
     private int size = 0;
 
     /**
@@ -22,44 +27,99 @@ public class SimpleHeap {
 
     public SimpleHeap(int[] data) {
         this.data = data;
-        this.size = data.length-1;
+        this.size = data.length;
         heapify();
+    }
+
+    public SimpleHeap() {
+        this.data = new int[DEFAULT_INITIAL_CAPACITY];
+    }
+
+    public SimpleHeap(int capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("capacity must > 0");
+        }
+        this.data = new int[capacity];
+    }
+
+    /**
+     * 添加元素
+     *
+     * @param x
+     */
+    public void add(int x) {
+        if (size + 1 > data.length) {
+            throw new IllegalStateException("add too many elements");
+        }
+        data[size] = x;
+        fixUp(size);
+        size++;
+    }
+
+
+    /**
+     * 元素上浮
+     *
+     * @param k
+     */
+    private void fixUp(int k) {
+        while (k > 1) {
+            int j = (k - 1) >>> 1;
+            if (data[j] <= data[k]) {
+                break;
+            }
+            int tmp = data[j];
+            data[j] = data[k];
+            data[k] = tmp;
+            k = j;
+        }
     }
 
     /**
      * 堆化
      */
     private void heapify() {
-        //下标小于等于i的节点拥有子节点
-        for (int i = size / 2;  i >= 1; i--) {
+        // 针对有子节点的元素进行处理
+        for (int i = size / 2 - 1; i >= 0; i--) {
             fixDown(i);
         }
     }
 
     /**
      * 元素下沉
+     *
      * @param k
      */
     private void fixDown(int k) {
         int j;
-        while ((j = k << 1) <= size && j > 0) {
-            if (j < size &&
-                    data[j] > data[j+1]) {
+        while ((j = (k << 1) + 1) <= size && j > 0) {
+            if (j < size - 1 &&
+                    data[j] > data[j + 1]) {
                 // j indexes smallest kid
                 j++;
             }
             if (data[k] <= data[j]) {
                 break;
             }
-            int tmp = data[j];  data[j] = data[k]; data[k] = tmp;
+            int tmp = data[j];
+            data[j] = data[k];
+            data[k] = tmp;
             k = j;
         }
     }
 
+
+    public int[] toArray() {
+        return Arrays.copyOf(data, size);
+    }
+
+
     public static void main(String[] args) {
-        // 问题是第一个元素没有参与 原因是当使用数组表示二叉树时，某一个节点的孩子节点为当前下标的2n和2n+1 当第0个元素为根节点没办法计算子节点 只能从下标1开始
-        int[] a = {10,8,2,3,9};
-        SimpleHeap heap = new SimpleHeap(a);
-        System.out.println(Arrays.toString(a));
+        SimpleHeap heap = new SimpleHeap();
+        for (int i = 9; i > 0; i--) {
+            heap.add(i);
+        }
+
+        System.out.println(Arrays.toString(heap.toArray()));
     }
 }
